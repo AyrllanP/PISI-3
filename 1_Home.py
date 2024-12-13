@@ -10,9 +10,6 @@ st.set_page_config(
 
 st.title("Dashboard de Bem-estar e Estilo de Vida")
 
-
-
-
 st.subheader("Bem-vindo!")
 st.write(
         """
