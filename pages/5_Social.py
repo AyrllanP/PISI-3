@@ -26,8 +26,8 @@ df['DAILY_STRESS'] = pd.to_numeric(df['DAILY_STRESS'], errors='coerce')
 st.header("Análise de rede de pessoas e estresse diário")
 
 st.write("""
-Este gráfico interativo mostra a distribuição de `SOCIAL_NETWORK`  com cores diferenciadas
-para diferentes valores de `DAILY_STRESS`. Use os filtros abaixo para ajustar a análise.
+Este gráfico interativo mostra a distribuição de quantidade de pessoas que interage ao dia  a frequencia que a quantidade se repete no dia, com cores diferenciadas
+para diferentes valores estresse diário. Use os filtros abaixo para ajustar a análise.
 """)
 
 # Filtro para ajustar faixa de SOCIAL_NETWORK
@@ -48,19 +48,21 @@ sns.histplot(
     multiple='stack',
     palette='viridis'
 )
-plt.title('Distribuição de SOCIAL_NETWORK colorida por DAILY_STRESS')
-plt.xlabel('SOCIAL_NETWORK')
+plt.title('Distribuição de quantidade de pessoas com que interage ao dia colorida por estresse diário')
+plt.xlabel('Interação com pessoas ao dia')
 plt.ylabel('Frequência')
 
 st.pyplot(plt)
+
+# Destaque diferentes faixas de SOCIAL_NETWORK e observe padrões de estresse.
 
 # Impacto de CORE_CIRCLE (pessoas próximas) e SUPPORTING_OTHERS no nível de estresse.
 
 st.header("Relação entre Pessoas próximas, Ajudar os outros e estresse diário")
 
 st.write("""
-Este gráfico de dispersão mostra a relação entre `CORE_CIRCLE` e `SUPPORTING_OTHERS`,
-com coloração baseada nos valores de `DAILY_STRESS`.
+Este gráfico de dispersão mostra a relação entre quantidade de pessoas próximas e  quantidade de pessoas que ajudou,
+com coloração baseada nos valores de Estresse diário.
 """)
 
 plt.figure(figsize=(10, 6))
@@ -72,11 +74,11 @@ scatter_plot = sns.scatterplot(
     palette='viridis'
 )
 
-plt.title('Relação entre CORE_CIRCLE, SUPPORTING_OTHERS e DAILY_STRESS')
-plt.xlabel('CORE_CIRCLE')
-plt.ylabel('SUPPORTING_OTHERS')
+plt.title('Relação entre quantidade de pessoas proximas,  quantidade de pessoas que ajudou e estresse diário')
+plt.xlabel('Pessoas próximas')
+plt.ylabel('Ajudou pessoas')
 
 # Ajustar a posição da legenda 
-plt.legend(title='DAILY_STRESS', bbox_to_anchor=(1.05, 1), loc='upper left')
+plt.legend(title='Estresse diário', bbox_to_anchor=(1.05, 1), loc='upper left')
 
 st.pyplot(plt)

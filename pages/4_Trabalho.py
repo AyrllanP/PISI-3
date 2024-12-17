@@ -28,7 +28,7 @@ df['DAILY_STRESS'] = pd.to_numeric(df['DAILY_STRESS'], errors='coerce')
 st.header("Como hábitos impactam no equilíbrio entre vida e trabalho")
 st.write(
         """
-        Este gráfico mostra a relação de DAILY_STEPS (representa atividade) SLEEP_HOURS (representando horas de sono)  e WORK_LIFE_BALANCE_SCORE (representando o equilibrio entre a vida e o trabalho)
+        Este gráfico mostra a relação de atividade, quantidade de horas de sono e equilíbrio entre a vida e o trabalho
 
         Mais horas de sono e uma quantidade maior de atividade física estão ligados a maiores valores de equilibrio entre a vida e o trabalho
 
@@ -37,14 +37,15 @@ st.write(
 
 plt.figure(figsize=(10, 6))
 plt.scatter(df['DAILY_STEPS'], df['SLEEP_HOURS'], c=df['WORK_LIFE_BALANCE_SCORE'], cmap='viridis')
-plt.colorbar(label='WORK_LIFE_BALANCE_SCORE')
+plt.colorbar(label='Equilíbrio vida-trabalho')
 
-plt.title('SLEEP_HOURS vs. DAILY_STEPS, colored by WORK_LIFE_BALANCE_SCORE')
-plt.xlabel('DAILY_STEPS')
-plt.ylabel('SLEEP_HOURS')
+plt.title('Horas de sono e Atividade física relacionado a Equilíbrio vida-trabalho')
+plt.xlabel('Atividade física')
+plt.ylabel('Horas de sono')
 
 st.pyplot(plt)
 
+# Relacionar estilo de vida e estresse
 
 # Gráfico de dispersão mostrando DAILY_STRESS em função de SUFFICIENT_INCOME e LIVE_VISION.
 st.header("Como estresse e visão de vida são impactados pela Renda")
@@ -59,14 +60,15 @@ st.write(
 plt.figure(figsize=(10, 6))
 
 plt.scatter(df['DAILY_STRESS'], df['LIVE_VISION'], c=df['SUFFICIENT_INCOME'], cmap='viridis')
-plt.colorbar(label='SUFFICIENT_INCOME')
+plt.colorbar(label='Suficiência da renda')
 
-plt.title('DAILY_STRESS vs. LIVE_VISION, colored by SUFFICIENT_INCOME')
-plt.xlabel('DAILY_STRESS')
-plt.ylabel('LIVE_VISION')
+plt.title('Estresse diário e Visão de vida  relacionado a suficiência da renda')
+plt.xlabel('Estresse diário')
+plt.ylabel('Visão de vida')
 
 st.pyplot(plt)
 
+# impactos econômicos e visão de propósito
 
 
 # Relação entre Meditação e Equilíbrio Vida-Trabalho
@@ -104,7 +106,7 @@ ax.legend(fontsize=12)
 
 st.pyplot(fig)
 
-
+# Combine com a distribuição por gênero/faixa etária em abas separadas ou filtros para clareza.
 
 # Distribuição de Tarefas Concluídas por Horas de Sono
 st.header("Distribuição de Tarefas Concluídas por Horas de Sono")
@@ -128,35 +130,83 @@ ax.set_ylabel("Tarefas Concluídas", fontsize=14)
 
 st.pyplot(fig)
 
-
+st.header("Heatmap de tarefas completadas, meditação semanal e tempo por paixão")
 # Heatmap para explorar combinações de hábitos TODO_COMPLETED, WEEKLY_MEDITATION, e TIME_FOR_PASSION.
 habits_df = df[["TODO_COMPLETED", "WEEKLY_MEDITATION", "TIME_FOR_PASSION"]]
 
 habits_df = habits_df.apply(pd.to_numeric, errors="coerce")
 correlation_matrix = habits_df.corr()
+
+translations = {
+    "TODO_COMPLETED": "Tarefas Completadas",
+    "WEEKLY_MEDITATION": "Meditação Semanal",
+    "TIME_FOR_PASSION": "Tempo para Paixão"
+}
+
 plt.figure(figsize=(10, 6))  
-sns.heatmap(correlation_matrix, annot=True, cmap="YlGnBu", fmt=".2f", vmin=-1, vmax=1)
+sns.heatmap(correlation_matrix, annot=True, cmap="coolwarm", fmt=".2f", vmin=-1, vmax=1)
+
+# Traduzir  eixos
+plt.xticks(ticks=range(len(correlation_matrix.columns)), labels=[translations[col] for col in correlation_matrix.columns], rotation=45)
+plt.yticks(ticks=range(len(correlation_matrix.index)), labels=[translations[index] for index in correlation_matrix.index], rotation=0)
+
+
 plt.title("Correlação entre Hábitos")
 
 st.pyplot(plt)
 
+# Mapeamento das faixas etárias
+faixa_etaria_traduzida = {
+    "Less than 20": "Menos de 20",
+    "21 to 35": "21 a 35",
+    "36 to 50": "36 a 50",
+    "51 or more": "51 ou mais"
+}
+
+habit_translation = {
+    "TODO_COMPLETED": "Tarefas Completadas",
+    "WEEKLY_MEDITATION": "Meditação Semanal",
+    "TIME_FOR_PASSION": "Tempo para Paixão"
+}
+
+gender_translation = {
+    "Male": "Masculino",
+    "Female": "Feminino"
+}
+
+# Traduzir as faixas etárias e os gêneros
+df["AGE_TRANSLATED"] = df["AGE"].map(faixa_etaria_traduzida)
+df["GENDER_TRANSLATED"] = df["GENDER"].map(gender_translation)
+
+# Ordenar as faixas etárias
+df["AGE_TRANSLATED"] = pd.Categorical(df["AGE_TRANSLATED"], categories=["Menos de 20", "21 a 35", "36 a 50", "51 ou mais"], ordered=True)
+
 # Filtros
 st.sidebar.header("Filtros")
-genero = st.sidebar.multiselect("Selecione o Gênero:", options=df["GENDER"].unique(), default=df["GENDER"].unique())
-faixa_etaria = st.sidebar.multiselect("Selecione a Faixa Etária:", options=df["AGE"].unique(), default=df["AGE"].unique())
+genero = st.sidebar.multiselect("Selecione o Gênero:", options=df["GENDER_TRANSLATED"].unique(), default=df["GENDER_TRANSLATED"].unique())
+faixa_etaria = st.sidebar.multiselect("Selecione a Faixa Etária:", options=df["AGE_TRANSLATED"].unique(), default=df["AGE_TRANSLATED"].unique())
 
-filtered_df = df[(df["GENDER"].isin(genero)) & (df["AGE"].isin(faixa_etaria))]
+filtered_df = df[(df["GENDER_TRANSLATED"].isin(genero)) & (df["AGE_TRANSLATED"].isin(faixa_etaria))]
 
+# Análise Interativa dos Hábitos
 st.subheader("Análise Interativa dos Hábitos")
-habit_choice = st.selectbox("Selecione o Hábito:", ["TODO_COMPLETED", "WEEKLY_MEDITATION", "TIME_FOR_PASSION"])
+habit_choice = st.selectbox("Selecione o Hábito:", options=["TODO_COMPLETED", "WEEKLY_MEDITATION", "TIME_FOR_PASSION"])
 
+# Traduzir o hábito selecionado
+habit_choice_translated = habit_translation[habit_choice]
+
+# Plotando o gráfico com as faixas etárias e gêneros traduzidos
 fig = px.box(
     filtered_df,
-    x="AGE",
+    x="AGE_TRANSLATED",
     y=habit_choice,
-    color="GENDER",
-    title=f"Distribuição de '{habit_choice}' por Faixa Etária e Gênero",
-    labels={"AGE": "Faixa Etária", habit_choice: "Valores do Hábito", "GENDER": "Gênero"},
+    color="GENDER_TRANSLATED",
+    title=f"Distribuição de {habit_choice_translated} por Faixa Etária e Gênero",
+    labels={
+        "AGE_TRANSLATED": "Faixa Etária", 
+        habit_choice: "Valores do Hábito", 
+        "GENDER_TRANSLATED": "Gênero"
+    },
     template="plotly",
 )
 
