@@ -23,10 +23,12 @@ df = pd.read_parquet('Wellbeing_and_lifestyle_data_Kaggle.parquet')
 df['DAILY_STRESS'] = df['DAILY_STRESS'].replace("1/1/00", 3)  
 df['DAILY_STRESS'] = pd.to_numeric(df['DAILY_STRESS'], errors='coerce') 
 
-st.header("Gráfico de Calor: Hábitos de Vida")
+st.header("Gráfico de Calor: Escala Normalizada (0 a 1)")
 st.write(
         """
-        Esse gráfico relaciona os valores de visão de vida com hábitos de passos diários (em milhares) e frutas e vegetais consumidas no dia
+        Esse gráfico apresenta a relação entre passos diários, consumo de frutas e vegetais, 
+    e metas de vida em uma escala normalizada de 0 a 1. Ele ajuda a identificar padrões 
+    e intensidade nas metas de vida baseadas em hábitos de saúde e atividade física.
         """
     )
 
@@ -36,22 +38,26 @@ heatmap_data = df.pivot_table(
     columns="FRUITS_VEGGIES",  
     aggfunc="mean" 
 )
+normalized_data = (heatmap_data - heatmap_data.min().min()) / (heatmap_data.max().max() - heatmap_data.min().min())
 fig, ax = plt.subplots(figsize=(12, 8))
 sns.heatmap(
-    heatmap_data,
+    normalized_data,
     cmap="coolwarm",
-    cbar_kws={"label": "Intensidade das Metas de Vida"},
-    linewidths=0.5, 
+    cbar_kws={"label": "Escala Normalizada (0 a 1)"},
+    linewidths=0.5,  
     square=True,     
-    annot=False,     
-    ax=ax          
+    annot=True,     
+    fmt=".2f",       
+    ax=ax           
 )
 
-ax.set_title("Relação entre Passos Diários, Consumo de Frutas/Veg e Metas de Vida", fontsize=16)
+
+ax.set_title("Relação Normalizada: Passos Diários, Consumo de Frutas/Veg e Metas de Vida", fontsize=16)
 ax.set_xlabel("Frutas e Vegetais Consumidos Diariamente", fontsize=14)
 ax.set_ylabel("Passos Diários", fontsize=14)
 plt.xticks(rotation=45)
 plt.yticks(rotation=0)
+
 
 st.pyplot(fig)
 

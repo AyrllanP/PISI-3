@@ -74,6 +74,11 @@ st.pyplot(plt)
 # Relação entre Meditação e Equilíbrio Vida-Trabalho
 st.header("Relação entre Meditação e Equilíbrio Vida-Trabalho")
 
+st.write(
+        """ Esse gráfico tem como objetivo explorar a relação entre as horas semanais dedicadas à meditação e o equilíbrio entre vida pessoal e trabalho. Ele utiliza um gráfico de dispersão para representar os dados de uma amostra da população, adicionando um "jitter" para facilitar a visualização dos pontos. Além disso, uma linha de tendência é incluída para destacar a correlação geral entre meditação e equilíbrio vida-trabalho.
+        """
+    )
+
 df["WEEKLY_MEDITATION_JITTER"] = df["WEEKLY_MEDITATION"] + np.random.uniform(-0.5, 0.5, size=len(df))
 sampled_df = df.sample(n=190, random_state=42)
 
@@ -110,6 +115,11 @@ st.pyplot(fig)
 
 # Distribuição de Tarefas Concluídas por Horas de Sono
 st.header("Distribuição de Tarefas Concluídas por Horas de Sono")
+
+st.write(
+        """ Esse gráfico analisa como as horas de sono influenciam na quantidade de tarefas concluídas. Ele utiliza um gráfico de caixa para exibir a distribuição dos dados, focando em indivíduos que dormem até 9 horas por noite. O objetivo é observar padrões e variações na produtividade associadas a diferentes períodos de sono.
+         """
+    )
 
 df_filtered = df[df["SLEEP_HOURS"] <= 9]
 
