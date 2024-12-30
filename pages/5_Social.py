@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
+import numpy as np
 
 
 st.title("Impacto de hábitos e comportamentos no bem-estar")
@@ -65,20 +66,42 @@ Este gráfico de dispersão mostra a relação entre quantidade de pessoas próx
 com coloração baseada nos valores de Estresse diário.
 """)
 
-plt.figure(figsize=(10, 6))
-scatter_plot = sns.scatterplot(
-    x='CORE_CIRCLE',
+# plt.figure(figsize=(10, 6))
+# scatter_plot = sns.scatterplot(
+#     x='CORE_CIRCLE',
+#     y='SUPPORTING_OTHERS',
+#     hue='DAILY_STRESS',
+#     data=df,
+#     palette='viridis'
+# )
+
+# plt.title('Relação entre quantidade de pessoas proximas,  quantidade de pessoas que ajudou e estresse diário')
+# plt.xlabel('Pessoas próximas')
+# plt.ylabel('Ajudou pessoas')
+
+# # Ajustar a posição da legenda 
+# plt.legend(title='Estresse diário', bbox_to_anchor=(1.05, 1), loc='upper left')
+
+# st.pyplot(plt)
+
+plt.figure(figsize=(12, 6))
+
+# Boxplot para mostrar estresse diário em função de 'CORE_CIRCLE' e 'SUPPORTING_OTHERS'
+sns.boxplot(
+    x='CORE_CIRCLE', 
     y='SUPPORTING_OTHERS',
-    hue='DAILY_STRESS',
+    hue='DAILY_STRESS',  
     data=df,
     palette='viridis'
 )
 
 plt.title('Relação entre quantidade de pessoas proximas,  quantidade de pessoas que ajudou e estresse diário')
-plt.xlabel('Pessoas próximas')
-plt.ylabel('Ajudou pessoas')
+plt.xlabel('Pessoas Próximas')
+plt.ylabel('Quantidade de pessoas que ajudou')
 
+plt.tight_layout()
 # Ajustar a posição da legenda 
 plt.legend(title='Estresse diário', bbox_to_anchor=(1.05, 1), loc='upper left')
+
 
 st.pyplot(plt)

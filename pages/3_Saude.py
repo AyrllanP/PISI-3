@@ -65,12 +65,26 @@ st.pyplot(fig)
 # Gráfico de barras relacionando FRUITS_VEGGIES, SLEEP_HOURS, DAILY_STEPS com DAILY_STRESS.
 
 st.header("Relação entre estresse diários e outras variáveis relacionadas a saúde")
+st.write(
+        """
+          Foram escolhidas algumas variáveis relacionadas a saúde para verificação da  sua relação com o  nível de estresse diário.
+          As variáveis escolhidas foram FRUITS_VEGGIES , SLEEP_HOURS e DAILY_STEPS
+          
+          
+          Foram observados:
+          Níveis de estresse menores em dias com maiores consumo de frutas e vegetais,
+          Níveis de estresse menores com uma quantidade de 8 horas de sono, e em quantidades de sono menores um desvio padrão maior em relação a quantidade de sono.
+          Não foi observado grandes variações do nível de estresse em relação a quantidade de passos.
+
+        """ 
+    )
+
 # Filtro
 option = st.selectbox(
     'Escolha a variável para ver a relação com o Estresse diário',
     ['Consumo de frutas e vegetais', 'Horas de sono', 'Atividade/Passos diários']
 )
-plt.figure(figsize=(10, 6))
+plt.figure(figsize=(7, 4))
 
 
 if option == 'Consumo de frutas e vegetais':
@@ -100,16 +114,4 @@ else:  # DAILY_STEPS
 # Exibir o gráfico no Streamlit
 st.pyplot(plt)
 
-st.write(
-        """
-        Esses gráficos relacionam o nível de estresse diário e alguns hábitos
-
-        Maior consumo de frutas e verduras está relacionado a um nível de estresse mais baixo
-
-        O nível de estresse  relacionado a horas em média é menor com um tempo de sono de 8 horas por dia
-
-        O nível de estresse não parece variar signficativamente com a quantidade de passos diários
-
-        """
-    )
 
