@@ -34,6 +34,12 @@ def load_data():
     
     return X_scaled, y
 
+# Exibir relatório de classificação
+def display_classification_report(y_true, y_pred):
+    report = classification_report(y_true, y_pred, output_dict=True)
+    report_df = pd.DataFrame(report).transpose()
+    st.write("#### Relatório de Classificação")
+    st.write(report_df)
 
 # Função para treinar e avaliar o Random Forest
 def random_forest(X_train, X_test, y_train, y_test):
@@ -48,21 +54,28 @@ def random_forest(X_train, X_test, y_train, y_test):
     
     # Métricas
     st.write("### Resultados do Random Forest")
-    st.write("#### Conjunto de Treino")
-    st.write(f"Acurácia: {accuracy_score(y_train, y_train_pred):.2f}")
-    st.write("Matriz de Confusão:")
-    conf_matrix_train = confusion_matrix(y_train, y_train_pred)
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.heatmap(conf_matrix_train, annot=True, fmt='d', cmap='Blues', ax=ax)
-    st.pyplot(fig)
     
-    st.write("#### Conjunto de Teste")
-    st.write(f"Acurácia: {accuracy_score(y_test, y_test_pred):.2f}")
-    st.write("Matriz de Confusão:")
-    conf_matrix_test = confusion_matrix(y_test, y_test_pred)
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.heatmap(conf_matrix_test, annot=True, fmt='d', cmap='Blues', ax=ax)
-    st.pyplot(fig)
+    col1, col2 = st.columns(2, gap="large")
+    
+    with col1:
+        st.write("#### Conjunto de Treino")
+        st.write(f"Acurácia: {accuracy_score(y_train, y_train_pred)}")
+        st.write("Matriz de Confusão:")
+        conf_matrix_train = confusion_matrix(y_train, y_train_pred)
+        fig, ax = plt.subplots(figsize=(6, 4))
+        sns.heatmap(conf_matrix_train, annot=True, fmt='d', cmap='Blues', ax=ax)
+        st.pyplot(fig)
+        display_classification_report(y_train, y_train_pred)
+    
+    with col2:
+        st.write("#### Conjunto de Teste")
+        st.write(f"Acurácia: {accuracy_score(y_test, y_test_pred)}")
+        st.write("Matriz de Confusão:")
+        conf_matrix_test = confusion_matrix(y_test, y_test_pred)
+        fig, ax = plt.subplots(figsize=(6, 4))
+        sns.heatmap(conf_matrix_test, annot=True, fmt='d', cmap='Blues', ax=ax)
+        st.pyplot(fig)
+        display_classification_report(y_test, y_test_pred)
 
 # Função para treinar e avaliar o KNN
 def knn(X_train, X_test, y_train, y_test, k=20):
@@ -75,21 +88,28 @@ def knn(X_train, X_test, y_train, y_test, k=20):
     
     # Métricas
     st.write("### Resultados do KNN")
-    st.write("#### Conjunto de Treino")
-    st.write(f"Acurácia: {accuracy_score(y_train, y_train_pred):.2f}")
-    st.write("Matriz de Confusão:")
-    conf_matrix_train = confusion_matrix(y_train, y_train_pred)
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.heatmap(conf_matrix_train, annot=True, fmt='d', cmap='Blues', ax=ax)
-    st.pyplot(fig)
     
-    st.write("#### Conjunto de Teste")
-    st.write(f"Acurácia: {accuracy_score(y_test, y_test_pred):.2f}")
-    st.write("Matriz de Confusão:")
-    conf_matrix_test = confusion_matrix(y_test, y_test_pred)
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.heatmap(conf_matrix_test, annot=True, fmt='d', cmap='Blues', ax=ax)
-    st.pyplot(fig)
+    col1, col2 = st.columns(2, gap="large")
+    
+    with col1:
+        st.write("#### Conjunto de Treino")
+        st.write(f"Acurácia: {accuracy_score(y_train, y_train_pred)}")
+        st.write("Matriz de Confusão:")
+        conf_matrix_train = confusion_matrix(y_train, y_train_pred)
+        fig, ax = plt.subplots(figsize=(6, 4))
+        sns.heatmap(conf_matrix_train, annot=True, fmt='d', cmap='Blues', ax=ax)
+        st.pyplot(fig)
+        display_classification_report(y_train, y_train_pred)
+    
+    with col2:
+        st.write("#### Conjunto de Teste")
+        st.write(f"Acurácia: {accuracy_score(y_test, y_test_pred)}")
+        st.write("Matriz de Confusão:")
+        conf_matrix_test = confusion_matrix(y_test, y_test_pred)
+        fig, ax = plt.subplots(figsize=(6, 4))
+        sns.heatmap(conf_matrix_test, annot=True, fmt='d', cmap='Blues', ax=ax)
+        st.pyplot(fig)
+        display_classification_report(y_test, y_test_pred)
 
 # Função para treinar e avaliar o SVM
 def svm(X_train, X_test, y_train, y_test):
@@ -102,21 +122,28 @@ def svm(X_train, X_test, y_train, y_test):
     
     # Métricas
     st.write("### Resultados do SVM")
-    st.write("#### Conjunto de Treino")
-    st.write(f"Acurácia: {accuracy_score(y_train, y_train_pred):.2f}")
-    st.write("Matriz de Confusão:")
-    conf_matrix_train = confusion_matrix(y_train, y_train_pred)
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.heatmap(conf_matrix_train, annot=True, fmt='d', cmap='Blues', ax=ax)
-    st.pyplot(fig)
     
-    st.write("#### Conjunto de Teste")
-    st.write(f"Acurácia: {accuracy_score(y_test, y_test_pred):.2f}")
-    st.write("Matriz de Confusão:")
-    conf_matrix_test = confusion_matrix(y_test, y_test_pred)
-    fig, ax = plt.subplots(figsize=(6, 4))
-    sns.heatmap(conf_matrix_test, annot=True, fmt='d', cmap='Blues', ax=ax)
-    st.pyplot(fig)
+    col1, col2 = st.columns(2, gap="large")
+    
+    with col1:
+        st.write("#### Conjunto de Treino")
+        st.write(f"Acurácia: {accuracy_score(y_train, y_train_pred)}")
+        st.write("Matriz de Confusão:")
+        conf_matrix_train = confusion_matrix(y_train, y_train_pred)
+        fig, ax = plt.subplots(figsize=(6, 4))
+        sns.heatmap(conf_matrix_train, annot=True, fmt='d', cmap='Blues', ax=ax)
+        st.pyplot(fig)
+        display_classification_report(y_train, y_train_pred)
+    
+    with col2:
+        st.write("#### Conjunto de Teste")
+        st.write(f"Acurácia: {accuracy_score(y_test, y_test_pred)}")
+        st.write("Matriz de Confusão:")
+        conf_matrix_test = confusion_matrix(y_test, y_test_pred)
+        fig, ax = plt.subplots(figsize=(6, 4))
+        sns.heatmap(conf_matrix_test, annot=True, fmt='d', cmap='Blues', ax=ax)
+        st.pyplot(fig)
+        display_classification_report(y_test, y_test_pred)
 
 # Interface do Streamlit
 def main():
