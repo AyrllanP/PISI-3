@@ -1,93 +1,140 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-from sklearn.preprocessing import OneHotEncoder, LabelEncoder, StandardScaler
+import plotly.express as px
+from sklearn.cluster import KMeans
+from sklearn.decomposition import PCA
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import silhouette_score
+from scipy.spatial.distance import cdist
 
-# Carregar os dados (substituir pelo seu dataset)
-data = pd.read_csv('Wellbeing_and_lifestyle_data_Kaggle.csv')
+# Função para carregar o dataset
+@st.cache
+def load_data():
+    data = pd.read_csv("Wellbeing_and_lifestyle_data_Kaggle.csv", encoding="latin1")
+    return data
 
-# Função para identificar outliers usando o IQR
-def detectar_outliers_iqr(df):
-    outliers = {}
-    for coluna in df.select_dtypes(include=['float64', 'int64']).columns:
-        Q1 = df[coluna].quantile(0.25)
-        Q3 = df[coluna].quantile(0.75)
-        IQR = Q3 - Q1
-        outliers[coluna] = df[(df[coluna] < Q1 - 1.5 * IQR) | (df[coluna] > Q3 + 1.5 * IQR)][coluna]
-    return outliers
+# Função para tratar outliers
+def tratar_outliers(df, coluna):
+    Q1 = df[coluna].quantile(0.25)
+    Q3 = df[coluna].quantile(0.75)
+    IQR = Q3 - Q1
+    limite_inferior = Q1 - 1.5 * IQR
+    limite_superior = Q3 + 1.5 * IQR
+    outliers = df[(df[coluna] < limite_inferior) | (df[coluna] > limite_superior)]
+    st.write(f"Coluna: {coluna} - Outliers detectados: {len(outliers)}")
+    mediana = df[coluna].median()
+    df.loc[(df[coluna] < limite_inferior) | (df[coluna] > limite_superior), coluna] = mediana
 
-# Streamlit App
-st.title("Clusterização - Análise e Tratamento de Dados")
+# Função para codificar a coluna 'DAILY_STRESS' corretamente
+def encode_daily_stress(value):
+    try:
+        value = str(value).strip()
+        mapping = {'0': 0, '1': 1, '2': 2, '3': 3, '4': 4, '5': 5}
+        return mapping.get(value, np.nan)
+    except Exception:
+        return np.nan
 
-# Introdução
-st.header("Introdução")
-st.write("Nesta seção, mostramos a preparação inicial dos dados para a clusterização.")
+# Carregar o dataset
+data = load_data()
 
-# Verificar valores nulos
-st.subheader("Verificação de Valores Nulos")
-st.write("Este dataset não contém valores nulos.")
+# Verificação de valores nulos
+st.header("Verificação de Valores Nulos")
+if data.isnull().sum().sum() == 0:
+    st.write("Este dataset não contém valores nulos.")
+else:
+    st.write("Este dataset contém valores nulos.")
 st.write(data.isnull().sum())
 
 # Quantidade de colunas e registros
-st.subheader("Quantidade de Colunas e Registros")
+st.header("Quantidade de Colunas e Registros")
 st.write(f"O dataset possui {data.shape[0]} registros e {data.shape[1]} colunas.")
 
-# Colunas categóricas e numéricas
-st.subheader("Colunas Categóricas e Numéricas")
+# Identificar colunas categóricas e numéricas
 categoricas = data.select_dtypes(include=['object', 'category']).columns.tolist()
 numericas = data.select_dtypes(include=['float64', 'int64']).columns.tolist()
-st.write("**Colunas Categóricas:**", categoricas)
-st.write("**Colunas Numéricas:**", numericas)
 
-# Outliers por coluna
-st.subheader("Detecção de Outliers")
-outliers = detectar_outliers_iqr(data)
-for coluna, valores in outliers.items():
-    st.write(f"Outliers na coluna {coluna}:", valores if not valores.empty else "Nenhum")
+st.header("Colunas Categóricas e Numéricas")
+st.write(f"**Colunas Categóricas:** {categoricas}")
+st.write(f"**Colunas Numéricas:** {numericas}")
 
-# Tratamento dos dados
-st.header("Tratamento dos Dados")
+# Tratamento de outliers
+st.header("Tratamento de Outliers")
+colunas_com_outliers = ['SLEEP_HOURS', 'DAILY_SHOUTING', 'WORK_LIFE_BALANCE_SCORE']
+for coluna in colunas_com_outliers:
+    tratar_outliers(data, coluna)
+st.write("Limpeza de dados concluída. O dataset tratado está armazenado na variável 'data'.")
 
-# Remover colunas irrelevantes
-st.subheader("Remoção de Colunas Irrelevantes")
-colunas_remover = ['carimbo_de_data_hora']
-data = data.drop(columns=colunas_remover, errors='ignore')
-st.write("Colunas removidas: ", colunas_remover)
+# Codificação de variáveis categóricas
+df = data.copy()
+df = pd.get_dummies(df, columns=['GENDER', 'AGE'], drop_first=True)
 
-# Codificar dados categóricos
-st.subheader("Codificação de Dados Categóricos")
-# OneHotEncoding para GÊNERO e AGE
-onehot_encoder = OneHotEncoder(sparse=False, drop='first')
-categoricas_para_codificar = ['GENERO', 'AGE']
-onehot_encoded = pd.DataFrame(onehot_encoder.fit_transform(data[categoricas_para_codificar]),
-                              columns=onehot_encoder.get_feature_names_out(categoricas_para_codificar))
-data = data.drop(columns=categoricas_para_codificar)
-data = pd.concat([data, onehot_encoded], axis=1)
-st.write("OneHot Encoding aplicado às colunas: ", categoricas_para_codificar)
+df['DAILY_STRESS'] = df['DAILY_STRESS'].apply(encode_daily_stress)
+df['DAILY_STRESS'].fillna(df['DAILY_STRESS'].median(), inplace=True)
+df['DAILY_STRESS'] = df['DAILY_STRESS'].astype(int)
 
-# Label Encoding para Daily_Stress
-label_encoder = LabelEncoder()
-data['Daily_Stress'] = label_encoder.fit_transform(data['Daily_Stress'])
-st.write("Label Encoding aplicado na coluna: Daily_Stress")
+if 'Timestamp' in df.columns:
+    df.drop(columns=['Timestamp'], inplace=True)
 
-# Padronizar dados numéricos
-st.subheader("Padronização de Dados Numéricos")
-scaler = StandardScaler()
-data[numericas] = scaler.fit_transform(data[numericas])
-st.write("Padronização aplicada às colunas numéricas.")
+# Seleção de features para clustering
+features = ['SLEEP_HOURS', 'DAILY_SHOUTING', 'WORK_LIFE_BALANCE_SCORE', 'DAILY_STRESS',
+            'FRUITS_VEGGIES', 'PLACES_VISITED', 'CORE_CIRCLE', 'SUPPORTING_OTHERS',
+            'SOCIAL_NETWORK', 'ACHIEVEMENT', 'DONATION', 'LIVE_VISION', 'LOST_VACATION',
+            'SUFFICIENT_INCOME', 'PERSONAL_AWARDS', 'TIME_FOR_PASSION', 'WEEKLY_MEDITATION']
+data_features = df[features]
 
-# Remover outliers
-st.subheader("Remoção de Outliers")
-data_sem_outliers = data.copy()
-for coluna in numericas:
-    Q1 = data[coluna].quantile(0.25)
-    Q3 = data[coluna].quantile(0.75)
-    IQR = Q3 - Q1
-    data_sem_outliers = data_sem_outliers[(data_sem_outliers[coluna] >= Q1 - 1.5 * IQR) &
-                                          (data_sem_outliers[coluna] <= Q3 + 1.5 * IQR)]
-st.write("Outliers removidos com base no IQR.")
-st.write(data_sem_outliers.head())
+# Adicionar filtros interativos
+st.sidebar.header("Filtros de Hábitos")
+habitos_selecionados = st.sidebar.multiselect("Selecione os hábitos para análise", features, default=features)
 
-# Salvar o dataset tratado
-data_sem_outliers.to_csv('dataset_tratado_clusterizacao.csv', index=False)
-st.write("Dataset tratado salvo como 'dataset_tratado_clusterizacao.csv'.")
+data_filtrada = df[habitos_selecionados]
+
+# Redução do dataset com base no tamanho da amostra
+sample_size = st.sidebar.slider("Tamanho da Amostra", min_value=0.01, max_value=1.0, value=0.1)
+sample_data, _ = train_test_split(data_filtrada, train_size=sample_size, random_state=42)
+
+# Aplicar PCA para redução de dimensionalidade
+pca = PCA(n_components=2)
+reduced_data = pca.fit_transform(sample_data)
+
+# Aplicar KMeans
+num_clusters = st.sidebar.slider("Número de Clusters", min_value=2, max_value=10, value=6)
+modelo_kmeans = KMeans(n_clusters=num_clusters, random_state=42, n_init=10)
+clusters = modelo_kmeans.fit_predict(reduced_data)
+sample_data['Cluster'] = clusters
+
+# Visualização dos clusters com Plotly
+st.header("Visualização Interativa dos Clusters")
+fig = px.scatter(
+    reduced_data, 
+    x=0, y=1, 
+    color=sample_data['Cluster'].astype(str),
+    title="Clusters de Hábitos e Bem-Estar",
+    labels={'0': 'Componente Principal 1', '1': 'Componente Principal 2'},
+    color_discrete_sequence=px.colors.qualitative.Set1
+)
+fig.add_scatter(
+    x=modelo_kmeans.cluster_centers_[:, 0], 
+    y=modelo_kmeans.cluster_centers_[:, 1], 
+    mode='markers', 
+    marker=dict(size=12, color='red', symbol='x', line=dict(width=2, color='black')),
+    name="Centroides"
+)
+st.plotly_chart(fig)
+
+# Resumo dos clusters
+st.header("Resumo dos Clusters")
+cluster_summary = sample_data.groupby('Cluster').mean()
+st.write("Média dos hábitos por cluster:")
+st.dataframe(cluster_summary)
+
+# Visualização das distribuições dos hábitos
+st.header("Distribuição dos Hábitos Selecionados")
+for habit in habitos_selecionados:
+    fig = px.histogram(
+        df, 
+        x=habit, 
+        title=f'Distribuição de {habit}',
+        labels={habit: habit}
+    )
+    st.plotly_chart(fig)
