@@ -10,7 +10,13 @@ Este projeto foi realizado para a disciplina "Projeto Interdiciplinar em Sistema
  - [Scikit-learn](https://scikit-learn.org/stable/)
  - [Plotly](https://plotly.com/)
 
----
+
+## Deploy do Aplicativo
+
+Disponível online através do **Streamlit Community Cloud**. Acesse diretamente pelo link abaixo:
+
+🔗 **[Acesse aqui](https://pisi-3-grupo-2.streamlit.app/)**
+
 
 ## Configuração do Ambiente e Execução do Projeto
 
